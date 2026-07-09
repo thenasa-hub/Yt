@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YTGrab - Download Videos Instantly</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-play-circle"></i>
+                <span>YTGrab</span>
+            </div>
+            
+            <ul class="nav-links">
+                <li><a href="#home" class="nav-link">Home</a></li>
+                <li><a href="#features" class="nav-link">Features</a></li>
+                <li><a href="#faq" class="nav-link">FAQ</a></li>
+                <li><a href="#about" class="nav-link">About</a></li>
+                <li><a href="#contact" class="nav-link">Contact</a></li>
+            </ul>
+
+            <div class="nav-right">
+                <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="cta-button">Try – It's Free</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-container">
+            <div class="hero-left">
+                <h1 class="hero-title">Grab videos instantly — fast, private, and clean.</h1>
+                <p class="hero-description">Download videos from your favorite platforms in seconds. No account needed, completely secure, and always free.</p>
+                
+                <div class="input-group">
+                    <input 
+                        type="text" 
+                        class="url-input" 
+                        id="urlInput" 
+                        placeholder="Paste video URL here..."
+                    >
+                    <button class="btn-paste" id="pasteBtn">
+                        <i class="fas fa-clipboard"></i> Paste
+                    </button>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-analyze" id="analyzeBtn">Analyze Video</button>
+                    <a href="#" class="demo-link">
+                        <i class="fas fa-arrow-right"></i> View Demo
+                    </a>
+                </div>
+            </div>
+
+            <div class="hero-right">
+                <div class="preview-card glass-effect">
+                    <div class="premium-badge">
+                        <span class="badge-icon">✨</span>
+                        Premium
+                    </div>
+                    
+                    <div class="preview-box">
+                        <div class="video-thumbnail">
+                            <i class="fas fa-video"></i>
+                        </div>
+                        <div class="preview-info">
+                            <h3>Your Video Here</h3>
+                            <p>Video metadata will appear here</p>
+                        </div>
+                    </div>
+
+                    <div class="feature-chips">
+                        <span class="chip">
+                            <i class="fas fa-bolt"></i> Fast
+                        </span>
+                        <span class="chip">
+                            <i class="fas fa-lock"></i> No login
+                        </span>
+                        <span class="chip">
+                            <i class="fas fa-shield-alt"></i> Secure
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="section-container">
+            <h2 class="section-title">Why Choose YTGrab?</h2>
+            <p class="section-subtitle">Everything you need for seamless video downloading</p>
+            
+            <div class="features-grid">
+                <div class="feature-card glass-effect">
+                    <div class="feature-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3>Fast Processing</h3>
+                    <p>Download videos in seconds with our optimized servers. No waiting, no buffering.</p>
+                </div>
+
+                <div class="feature-card glass-effect">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Responsive</h3>
+                    <p>Works perfectly on desktop, tablet, and mobile devices. Download anywhere, anytime.</p>
+                </div>
+
+                <div class="feature-card glass-effect">
+                    <div class="feature-icon">
+                        <i class="fas fa-wand-magic-sparkles"></i>
+                    </div>
+                    <h3>Modern Animations</h3>
+                    <p>Smooth, delightful user experience with premium animations and transitions.</p>
+                </div>
+
+                <div class="feature-card glass-effect">
+                    <div class="feature-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <h3>Secure</h3>
+                    <p>Your data is encrypted. We never store or share your personal information.</p>
+                </div>
+
+                <div class="feature-card glass-effect">
+                    <div class="feature-icon">
+                        <i class="fas fa-headphones"></i>
+                    </div>
+                    <h3>Audio & Video</h3>
+                    <p>Download in multiple formats and qualities. Audio-only or full video option.</p>
+                </div>
+
+                <div class="feature-card glass-effect">
+                    <div class="feature-icon">
+                        <i class="fas fa-palette"></i>
+                    </div>
+                    <h3>Clean UI</h3>
+                    <p>Minimalist design focused on what matters. No ads, no clutter, just simplicity.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq" id="faq">
+        <div class="section-container">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            <p class="section-subtitle">Everything you need to know</p>
+
+            <div class="faq-container">
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>Do I need an account?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>No account needed! YTGrab works completely anonymously. Just paste a URL, and you're ready to download. We respect your privacy.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>Which sites are supported?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>We support YouTube, TikTok, Instagram, Twitch, Facebook, and many more platforms. If you don't see your favorite site, let us know!</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>Is this safe to use?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>Absolutely! YTGrab uses industry-standard security protocols. Your downloads are encrypted, and we never store any personal data or watch history.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>What formats are available?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>We offer MP4 video, MP3 audio, and various quality options from 360p to 4K. Choose what works best for you.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>How much does it cost?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>YTGrab is completely free! No hidden charges, no premium plans. Download as much as you want without limitations.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">
+                        <span>Is there a file size limit?</span>
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-answer">
+                        <p>No limits! Download videos of any length or quality. Whether it's a short clip or a full-length video, we've got you covered.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about" id="about">
+        <div class="section-container">
+            <h2 class="section-title">About YTGrab</h2>
+            
+            <div class="about-content">
+                <div class="about-text">
+                    <p>YTGrab was built with one mission: to make video downloading simple, fast, and accessible to everyone. We believe that creators should have the right to keep their favorite content safe, and we provide a tool to do exactly that.</p>
+                    
+                    <p>Our platform combines cutting-edge technology with a focus on user privacy. Every download is processed securely, and we maintain zero logs of your activity.</p>
+
+                    <div class="about-badges">
+                        <div class="about-badge">
+                            <i class="fas fa-palette"></i>
+                            <span>Design-first</span>
+                        </div>
+                        <div class="about-badge">
+                            <i class="fas fa-code"></i>
+                            <span>Developer friendly</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contact">
+        <div class="section-container">
+            <h2 class="section-title">Get In Touch</h2>
+            <p class="section-subtitle">Have questions? We'd love to hear from you.</p>
+
+            <div class="contact-grid">
+                <div class="contact-form glass-effect">
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <input 
+                                type="text" 
+                                placeholder="Your Name" 
+                                required
+                                class="form-input"
+                            >
+                        </div>
+                        <div class="form-group">
+                            <input 
+                                type="email" 
+                                placeholder="Your Email" 
+                                required
+                                class="form-input"
+                            >
+                        </div>
+                        <div class="form-group">
+                            <textarea 
+                                placeholder="Your Message" 
+                                rows="5"
+                                required
+                                class="form-input"
+                            ></textarea>
+                        </div>
+                        <button type="submit" class="btn-send">Send Message</button>
+                    </form>
+                </div>
+
+                <div class="contact-info glass-effect">
+                    <h3>Connect With Us</h3>
+                    <p>Follow us on social media or send us an email. We're always happy to help!</p>
+                    
+                    <div class="social-buttons">
+                        <a href="https://twitter.com" class="social-btn" title="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="https://github.com" class="social-btn" title="GitHub">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="https://discord.com" class="social-btn" title="Discord">
+                            <i class="fab fa-discord"></i>
+                        </a>
+                    </div>
+
+                    <div class="contact-details">
+                        <p><i class="fas fa-envelope"></i> support@ytgrab.com</p>
+                        <p><i class="fas fa-globe"></i> www.ytgrab.com</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="section-container">
+            <p>&copy; 2024 YTGrab. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a></p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
