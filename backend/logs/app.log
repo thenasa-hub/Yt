@@ -6,3 +6,7 @@
 [2026-07-10T11:13:17.773Z] INFO: POST /api/analyze
 [2026-07-10T11:13:17.788Z] INFO: POST /api/download
 [2026-07-10T11:13:19.590Z] INFO: Download job 8dc1b989-7d93-4d02-b70d-11fa347620cd completed
+[2026-07-10T11:38:23.971Z] INFO: POST /api/analyze
+[2026-07-10T11:39:56.050Z] INFO: Shutting down server
+[2026-07-10T11:39:56.271Z] INFO: Server running on port 3000
+[2026-07-10T11:40:03.284Z] INFO: POST /api/analyze
