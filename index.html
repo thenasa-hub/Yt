@@ -54,10 +54,31 @@
 
                 <div class="button-group">
                     <button class="btn-analyze" id="analyzeBtn">Analyze Video</button>
+                    <button class="btn-download" id="downloadBtn">Download</button>
                     <a href="#" class="demo-link">
                         <i class="fas fa-arrow-right"></i> View Demo
                     </a>
                 </div>
+
+                <div class="download-controls">
+                    <label class="control-field">
+                        <span>Format</span>
+                        <select id="formatSelect">
+                            <option value="mp3">MP3</option>
+                            <option value="mp4">MP4</option>
+                        </select>
+                    </label>
+                    <label class="control-field">
+                        <span>Quality</span>
+                        <select id="qualitySelect">
+                            <option value="best">Best</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                        </select>
+                    </label>
+                </div>
+
+                <div id="downloadStatus" class="download-status" aria-live="polite"></div>
             </div>
 
             <div class="hero-right">

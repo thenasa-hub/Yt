@@ -6,6 +6,10 @@
 const urlInput = document.getElementById('urlInput');
 const pasteBtn = document.getElementById('pasteBtn');
 const analyzeBtn = document.getElementById('analyzeBtn');
+const downloadBtn = document.getElementById('downloadBtn');
+const formatSelect = document.getElementById('formatSelect');
+const qualitySelect = document.getElementById('qualitySelect');
+const downloadStatus = document.getElementById('downloadStatus');
 const themeToggle = document.getElementById('themeToggle');
 const contactForm = document.getElementById('contactForm');
 const faqItems = document.querySelectorAll('.faq-item');
@@ -107,6 +111,60 @@ analyzeBtn.addEventListener('click', () => {
 });
 
 // ================================
+// Download Handler
+// ================================
+
+downloadBtn?.addEventListener('click', async () => {
+    const url = urlInput.value.trim();
+
+    if (!url) {
+        showNotification('Please enter a URL first', 'warning');
+        urlInput.focus();
+        return;
+    }
+
+    if (!isValidURL(url)) {
+        showNotification('Please enter a valid URL', 'error');
+        urlInput.focus();
+        return;
+    }
+
+    if (!isYouTubeUrl(url)) {
+        showNotification('Only YouTube links are supported', 'error');
+        return;
+    }
+
+    downloadBtn.disabled = true;
+    downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting...';
+    setDownloadStatus('loading', '<i class="fas fa-spinner fa-spin"></i> Preparing download...');
+
+    try {
+        const response = await fetch('/api/download', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                url,
+                format: formatSelect.value,
+                quality: qualitySelect.value
+            })
+        });
+
+        const result = await response.json();
+        if (!response.ok) {
+            throw new Error(result.error || 'Unable to start download');
+        }
+
+        const jobId = result.data.id;
+        setDownloadStatus('loading', `<i class="fas fa-spinner fa-spin"></i> Download queued. Tracking job ${jobId}...`);
+        pollDownloadStatus(jobId);
+    } catch (error) {
+        setDownloadStatus('error', `<i class="fas fa-exclamation-circle"></i> ${error.message}`);
+        downloadBtn.disabled = false;
+        downloadBtn.innerHTML = 'Download';
+    }
+});
+
+// ================================
 // URL Validation
 // ================================
 
@@ -116,6 +174,49 @@ function isValidURL(string) {
         return true;
     } catch (_) {
         return false;
+    }
+}
+
+function isYouTubeUrl(string) {
+    try {
+        const parsed = new URL(string);
+        return parsed.hostname.includes('youtube.com') || parsed.hostname.includes('youtu.be');
+    } catch (_) {
+        return false;
+    }
+}
+
+function setDownloadStatus(type, message) {
+    if (!downloadStatus) return;
+    downloadStatus.className = `download-status ${type}`;
+    downloadStatus.innerHTML = message;
+}
+
+async function pollDownloadStatus(jobId) {
+    try {
+        const response = await fetch(`/api/status/${jobId}`);
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Unable to fetch status');
+
+        const job = result.data;
+        setDownloadStatus('loading', `<i class="fas fa-spinner fa-spin"></i> ${job.status} (${job.progress}%)`);
+
+        if (job.status === 'completed') {
+            setDownloadStatus('success', `<i class="fas fa-check-circle"></i> Download ready. <a href="/api/file/${job.id}" target="_blank" rel="noopener noreferrer">Download file</a>`);
+            downloadBtn.disabled = false;
+            downloadBtn.innerHTML = 'Download';
+            return;
+        }
+
+        if (job.status === 'failed') {
+            throw new Error('Download failed');
+        }
+
+        window.setTimeout(() => pollDownloadStatus(jobId), 1000);
+    } catch (error) {
+        setDownloadStatus('error', `<i class="fas fa-exclamation-circle"></i> ${error.message}`);
+        downloadBtn.disabled = false;
+        downloadBtn.innerHTML = 'Download';
     }
 }
 

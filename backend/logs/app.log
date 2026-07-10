@@ -1,0 +1,4 @@
+[2026-07-10T07:59:29.742Z] INFO: Server running on port 3000
+[2026-07-10T08:00:17.467Z] INFO: GET /api/health
+[2026-07-10T08:00:51.440Z] INFO: POST /api/download
+[2026-07-10T08:00:53.245Z] INFO: Download job 707284a5-f0cc-4968-b2eb-8be2d4d2215f completed
