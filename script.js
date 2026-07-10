@@ -6,64 +6,57 @@
 const urlInput = document.getElementById('urlInput');
 const pasteBtn = document.getElementById('pasteBtn');
 const analyzeBtn = document.getElementById('analyzeBtn');
-const downloadBtn = document.getElementById('downloadBtn');
-const formatSelect = document.getElementById('formatSelect');
-const qualitySelect = document.getElementById('qualitySelect');
 const downloadStatus = document.getElementById('downloadStatus');
 const themeToggle = document.getElementById('themeToggle');
 const contactForm = document.getElementById('contactForm');
 const faqItems = document.querySelectorAll('.faq-item');
 const faqQuestions = document.querySelectorAll('.faq-question');
 const navLinks = document.querySelectorAll('.nav-link');
+const analysisPanel = document.getElementById('analysisPanel');
+
+let isDarkMode = true;
+let currentAnalysis = null;
 
 // ================================
 // Theme Toggle
 // ================================
 
-let isDarkMode = true; // Default to dark mode
-
-themeToggle.addEventListener('click', () => {
+themeToggle?.addEventListener('click', () => {
     isDarkMode = !isDarkMode;
     document.body.classList.toggle('light-mode');
-    
-    // Update icon
+
     const icon = themeToggle.querySelector('i');
     icon.classList.toggle('fa-moon');
     icon.classList.toggle('fa-sun');
-    
-    // Save preference
+
     localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
 });
 
-// Load saved theme preference
 const savedTheme = localStorage.getItem('theme');
 if (savedTheme === 'light') {
     isDarkMode = false;
     document.body.classList.add('light-mode');
-    const icon = themeToggle.querySelector('i');
-    icon.classList.remove('fa-moon');
-    icon.classList.add('fa-sun');
+    const icon = themeToggle?.querySelector('i');
+    icon?.classList.remove('fa-moon');
+    icon?.classList.add('fa-sun');
 }
 
 // ================================
 // URL Input - Paste Button
 // ================================
 
-pasteBtn.addEventListener('click', async () => {
+pasteBtn?.addEventListener('click', async () => {
     try {
-        // Try to use the Clipboard API
         if (navigator.clipboard && navigator.clipboard.readText) {
             const text = await navigator.clipboard.readText();
             urlInput.value = text;
             urlInput.focus();
-            
-            // Visual feedback
+
             pasteBtn.style.background = 'rgba(34, 211, 238, 0.3)';
             setTimeout(() => {
                 pasteBtn.style.background = '';
             }, 300);
         } else {
-            // Fallback for older browsers
             showNotification('Please allow clipboard access or paste manually', 'warning');
         }
     } catch (err) {
@@ -72,49 +65,17 @@ pasteBtn.addEventListener('click', async () => {
     }
 });
 
-// Allow pasting via Ctrl+V in input
-urlInput.addEventListener('paste', (e) => {
+urlInput?.addEventListener('paste', () => {
     setTimeout(() => {
         showNotification('URL pasted successfully!', 'success');
     }, 100);
 });
 
 // ================================
-// Analyze Button
+// Analyze Flow
 // ================================
 
-analyzeBtn.addEventListener('click', () => {
-    const url = urlInput.value.trim();
-    
-    if (!url) {
-        showNotification('Please enter a URL first', 'warning');
-        urlInput.focus();
-        return;
-    }
-    
-    if (!isValidURL(url)) {
-        showNotification('Please enter a valid URL', 'error');
-        urlInput.focus();
-        return;
-    }
-    
-    // Simulate analysis
-    analyzeBtn.disabled = true;
-    analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
-    
-    setTimeout(() => {
-        showNotification('Video analyzed successfully! Ready to download.', 'success');
-        updatePreviewCard(url);
-        analyzeBtn.disabled = false;
-        analyzeBtn.innerHTML = 'Analyze Video';
-    }, 1500);
-});
-
-// ================================
-// Download Handler
-// ================================
-
-downloadBtn?.addEventListener('click', async () => {
+analyzeBtn?.addEventListener('click', async () => {
     const url = urlInput.value.trim();
 
     if (!url) {
@@ -134,33 +95,69 @@ downloadBtn?.addEventListener('click', async () => {
         return;
     }
 
-    downloadBtn.disabled = true;
-    downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Starting...';
+    analyzeBtn.disabled = true;
+    analyzeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
+    setDownloadStatus('info', '<i class="fas fa-spinner fa-spin"></i> Analyzing video metadata...');
+    renderLoadingState();
+
+    try {
+        const response = await fetch('/api/analyze', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url })
+        });
+
+        const result = await readJsonResponse(response);
+        if (!response.ok) {
+            throw new Error(result?.error || 'Unable to analyze video');
+        }
+
+        currentAnalysis = { url, ...result?.data };
+        renderAnalysisCard(currentAnalysis);
+        setDownloadStatus('success', '<i class="fas fa-check-circle"></i> Analysis complete. Choose a download option below.');
+        showNotification('Video analyzed successfully. Select a format to download.', 'success');
+    } catch (error) {
+        renderPlaceholderState();
+        setDownloadStatus('error', `<i class="fas fa-exclamation-circle"></i> ${error.message}`);
+    } finally {
+        analyzeBtn.disabled = false;
+        analyzeBtn.innerHTML = 'Analyze Video';
+    }
+});
+
+analysisPanel?.addEventListener('click', async (event) => {
+    const button = event.target.closest('.option-download-btn');
+    if (!button || !currentAnalysis) return;
+
+    const { selectedFormat, quality, fileType } = button.dataset;
+    const url = currentAnalysis.url;
+
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Queued';
     setDownloadStatus('loading', '<i class="fas fa-spinner fa-spin"></i> Preparing download...');
 
     try {
         const response = await fetch('/api/download', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                url,
-                format: formatSelect.value,
-                quality: qualitySelect.value
-            })
+            body: JSON.stringify({ url, selectedFormat, quality, fileType })
         });
 
-        const result = await response.json();
+        const result = await readJsonResponse(response);
         if (!response.ok) {
-            throw new Error(result.error || 'Unable to start download');
+            throw new Error(result?.error || 'Unable to start download');
         }
 
-        const jobId = result.data.id;
+        const jobId = result?.data?.id;
+        if (!jobId) {
+            throw new Error('The server did not return a valid download job.');
+        }
         setDownloadStatus('loading', `<i class="fas fa-spinner fa-spin"></i> Download queued. Tracking job ${jobId}...`);
         pollDownloadStatus(jobId);
     } catch (error) {
+        button.disabled = false;
+        button.innerHTML = 'Download';
         setDownloadStatus('error', `<i class="fas fa-exclamation-circle"></i> ${error.message}`);
-        downloadBtn.disabled = false;
-        downloadBtn.innerHTML = 'Download';
     }
 });
 
@@ -192,19 +189,34 @@ function setDownloadStatus(type, message) {
     downloadStatus.innerHTML = message;
 }
 
+async function readJsonResponse(response) {
+    const text = await response.text();
+
+    if (!text) {
+        return null;
+    }
+
+    try {
+        return JSON.parse(text);
+    } catch {
+        return { error: 'The server returned an unexpected response.' };
+    }
+}
+
 async function pollDownloadStatus(jobId) {
     try {
         const response = await fetch(`/api/status/${jobId}`);
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.error || 'Unable to fetch status');
+        const result = await readJsonResponse(response);
+        if (!response.ok) throw new Error(result?.error || 'Unable to fetch status');
 
-        const job = result.data;
+        const job = result?.data;
+        if (!job) {
+            throw new Error('The server did not return the current job status.');
+        }
         setDownloadStatus('loading', `<i class="fas fa-spinner fa-spin"></i> ${job.status} (${job.progress}%)`);
 
         if (job.status === 'completed') {
             setDownloadStatus('success', `<i class="fas fa-check-circle"></i> Download ready. <a href="/api/file/${job.id}" target="_blank" rel="noopener noreferrer">Download file</a>`);
-            downloadBtn.disabled = false;
-            downloadBtn.innerHTML = 'Download';
             return;
         }
 
@@ -215,35 +227,82 @@ async function pollDownloadStatus(jobId) {
         window.setTimeout(() => pollDownloadStatus(jobId), 1000);
     } catch (error) {
         setDownloadStatus('error', `<i class="fas fa-exclamation-circle"></i> ${error.message}`);
-        downloadBtn.disabled = false;
-        downloadBtn.innerHTML = 'Download';
     }
 }
 
-// ================================
-// Update Preview Card
-// ================================
-
-function updatePreviewCard(url) {
-    const videoTitle = extractDomain(url);
-    const previewInfo = document.querySelector('.preview-info');
-    
-    if (previewInfo) {
-        previewInfo.innerHTML = `
-            <h3>${videoTitle}</h3>
-            <p>Ready to download</p>
-        `;
-    }
+function renderPlaceholderState() {
+    if (!analysisPanel) return;
+    analysisPanel.innerHTML = `
+        <div class="placeholder-state">
+            <div class="analysis-icon">
+                <i class="fas fa-magic"></i>
+            </div>
+            <h3>Ready to analyze</h3>
+            <p>Paste a YouTube URL, click Analyze Video, and your premium download options will appear here.</p>
+        </div>
+    `;
 }
 
-// Extract domain from URL
-function extractDomain(url) {
-    try {
-        const urlObj = new URL(url);
-        return urlObj.hostname.replace('www.', '');
-    } catch {
-        return 'Video';
-    }
+function renderLoadingState() {
+    if (!analysisPanel) return;
+    analysisPanel.innerHTML = `
+        <div class="analysis-loading">
+            <div class="loading-orb"></div>
+            <h3>Analyzing...</h3>
+            <p>Pulling video metadata and format options for you.</p>
+        </div>
+    `;
+}
+
+function renderAnalysisCard(data) {
+    if (!analysisPanel) return;
+
+    const videoFormats = (data.videoFormats || []).map((item) => `
+        <div class="option-row">
+            <div>
+                <div class="option-title">${item.label}</div>
+                <span class="option-meta">${item.size} · ${item.audio || 'Audio included'}</span>
+            </div>
+            <button class="option-download-btn" data-selected-format="video" data-quality="${item.quality}" data-file-type="${item.fileType}">Download</button>
+        </div>
+    `).join('');
+
+    const audioFormats = (data.audioFormats || []).map((item) => `
+        <div class="option-row">
+            <div>
+                <div class="option-title">${item.label}</div>
+                <span class="option-meta">${item.bitrate} · ${item.size}</span>
+            </div>
+            <button class="option-download-btn" data-selected-format="audio" data-quality="${item.bitrate}" data-file-type="${item.fileType}">Download</button>
+        </div>
+    `).join('');
+
+    analysisPanel.innerHTML = `
+        <div class="analysis-card">
+            <div class="video-meta">
+                <img class="video-thumb" src="${data.thumbnail}" alt="${data.title}">
+                <div class="meta-copy">
+                    <h3>${data.title}</h3>
+                    <p>${data.channelName}</p>
+                    <div class="meta-stats">
+                        <span><i class="fas fa-clock"></i> ${data.duration}</span>
+                        <span><i class="fas fa-eye"></i> ${data.views || '—'}</span>
+                        <span><i class="fas fa-calendar"></i> ${data.uploadDate || '—'}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="option-group">
+                <h4>Video</h4>
+                ${videoFormats}
+            </div>
+
+            <div class="option-group">
+                <h4>Audio</h4>
+                ${audioFormats}
+            </div>
+        </div>
+    `;
 }
 
 // ================================
@@ -254,20 +313,17 @@ faqQuestions.forEach((question, index) => {
     question.addEventListener('click', () => {
         const faqItem = faqItems[index];
         const isActive = faqItem.classList.contains('active');
-        
-        // Close all other items
+
         faqItems.forEach(item => {
             item.classList.remove('active');
         });
-        
-        // Toggle current item
+
         if (!isActive) {
             faqItem.classList.add('active');
         }
     });
 });
 
-// Allow keyboard navigation for FAQ
 faqQuestions.forEach((question, index) => {
     question.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -281,30 +337,27 @@ faqQuestions.forEach((question, index) => {
 // Contact Form
 // ================================
 
-contactForm.addEventListener('submit', (e) => {
+contactForm?.addEventListener('submit', (e) => {
     e.preventDefault();
-    
+
     const formData = new FormData(contactForm);
-    const name = formData.get('name') || 'User';
     const email = formData.get('email') || '';
     const message = formData.get('message') || '';
-    
-    // Validate email
+
     if (!isValidEmail(email)) {
         showNotification('Please enter a valid email address', 'error');
         return;
     }
-    
+
     if (message.trim().length < 10) {
         showNotification('Please enter a message with at least 10 characters', 'warning');
         return;
     }
-    
-    // Simulate form submission
+
     const submitBtn = contactForm.querySelector('.btn-send');
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-    
+
     setTimeout(() => {
         showNotification('Thank you! Your message has been sent successfully.', 'success');
         contactForm.reset();
@@ -313,7 +366,6 @@ contactForm.addEventListener('submit', (e) => {
     }, 1500);
 });
 
-// Email validation
 function isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -324,7 +376,6 @@ function isValidEmail(email) {
 // ================================
 
 function showNotification(message, type = 'info') {
-    // Create notification element
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     notification.innerHTML = `
@@ -333,11 +384,9 @@ function showNotification(message, type = 'info') {
             <span>${message}</span>
         </div>
     `;
-    
-    // Add to DOM
+
     document.body.appendChild(notification);
-    
-    // Add styles dynamically
+
     notification.style.cssText = `
         position: fixed;
         bottom: 30px;
@@ -351,8 +400,7 @@ function showNotification(message, type = 'info') {
         animation: slideIn 0.3s ease;
         max-width: 300px;
     `;
-    
-    // Add animation
+
     const style = document.createElement('style');
     style.textContent = `
         @keyframes slideIn {
@@ -377,8 +425,7 @@ function showNotification(message, type = 'info') {
         }
     `;
     document.head.appendChild(style);
-    
-    // Remove after 3 seconds
+
     setTimeout(() => {
         notification.style.animation = 'slideOut 0.3s ease';
         setTimeout(() => {
@@ -394,14 +441,14 @@ function showNotification(message, type = 'info') {
 navLinks.forEach(link => {
     link.addEventListener('click', (e) => {
         e.preventDefault();
-        
+
         const targetId = link.getAttribute('href');
         const targetSection = document.querySelector(targetId);
-        
+
         if (targetSection) {
-            const offset = 80; // Navbar height
+            const offset = 80;
             const targetPosition = targetSection.offsetTop - offset;
-            
+
             window.scrollTo({
                 top: targetPosition,
                 behavior: 'smooth'
@@ -410,21 +457,17 @@ navLinks.forEach(link => {
     });
 });
 
-// ================================
-// Active Nav Link Highlighting
-// ================================
-
 window.addEventListener('scroll', () => {
     const offset = 100;
-    
+
     navLinks.forEach(link => {
         const targetId = link.getAttribute('href');
         const targetSection = document.querySelector(targetId);
-        
+
         if (targetSection) {
             const sectionTop = targetSection.offsetTop - offset;
             const sectionBottom = sectionTop + targetSection.offsetHeight;
-            
+
             if (window.scrollY >= sectionTop && window.scrollY < sectionBottom) {
                 navLinks.forEach(l => l.style.color = '');
                 link.style.color = 'var(--color-accent)';
@@ -451,7 +494,6 @@ const observer = new IntersectionObserver((entries) => {
     });
 }, observerOptions);
 
-// Observe feature cards
 document.querySelectorAll('.feature-card').forEach(card => {
     observer.observe(card);
 });
@@ -460,10 +502,10 @@ document.querySelectorAll('.feature-card').forEach(card => {
 // CTA Button Handler
 // ================================
 
-document.querySelector('.cta-button').addEventListener('click', () => {
+document.querySelector('.cta-button')?.addEventListener('click', () => {
     const heroSection = document.querySelector('.hero');
-    heroSection.scrollIntoView({ behavior: 'smooth' });
-    urlInput.focus();
+    heroSection?.scrollIntoView({ behavior: 'smooth' });
+    urlInput?.focus();
 });
 
 // ================================
@@ -482,16 +524,14 @@ document.querySelectorAll('.social-btn').forEach(btn => {
 // ================================
 
 document.addEventListener('keydown', (e) => {
-    // Ctrl/Cmd + F to focus search
     if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
         e.preventDefault();
-        urlInput.focus();
+        urlInput?.focus();
     }
-    
-    // Escape to close any modals or clear focus
+
     if (e.key === 'Escape') {
-        urlInput.blur();
-        document.activeElement.blur();
+        urlInput?.blur();
+        document.activeElement?.blur();
     }
 });
 
@@ -511,19 +551,13 @@ document.querySelector('.demo-link')?.addEventListener('click', (e) => {
 // ================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('YTGrab website loaded successfully!');
-    
-    // Add any additional initialization here
-    
-    // Show welcome notification (optional)
-    // showNotification('Welcome to YTGrab!', 'success');
+    renderPlaceholderState();
 });
 
 // ================================
 // Performance Optimization
 // ================================
 
-// Lazy load images (if any)
 if ('IntersectionObserver' in window) {
     const imageObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -535,15 +569,11 @@ if ('IntersectionObserver' in window) {
             }
         });
     });
-    
+
     document.querySelectorAll('img[data-src]').forEach(img => {
         imageObserver.observe(img);
     });
 }
-
-// ================================
-// Console Welcome Message
-// ================================
 
 console.log('%cWelcome to YTGrab!', 'color: #7C3AED; font-size: 24px; font-weight: bold;');
 console.log('%cFast, Private, and Clean Video Downloading', 'color: #38BDF8; font-size: 14px;');

@@ -33,16 +33,22 @@ app.get('*', (req, res) => {
 
 app.use(errorHandler);
 
-const server = app.listen(config.port, () => {
-  logger.info(`Server running on port ${config.port}`);
-});
+let server;
 
-process.on('SIGTERM', shutdown);
-process.on('SIGINT', shutdown);
+if (require.main === module) {
+  server = app.listen(config.port, () => {
+    logger.info(`Server running on port ${config.port}`);
+  });
+
+  process.on('SIGTERM', shutdown);
+  process.on('SIGINT', shutdown);
+}
 
 function shutdown() {
   logger.info('Shutting down server');
-  server.close(() => {
+  server?.close(() => {
     process.exit(0);
   });
 }
+
+module.exports = app;

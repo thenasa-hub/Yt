@@ -873,6 +873,194 @@ textarea.form-input {
 }
 
 /* ================================
+   PREMIUM ANALYZE FLOW
+   ================================ */
+
+.analysis-panel {
+    margin-top: 24px;
+    min-height: 320px;
+    border-radius: 24px;
+    padding: 22px;
+    background: linear-gradient(145deg, rgba(124, 58, 237, 0.16), rgba(56, 189, 248, 0.12));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.placeholder-state,
+.analysis-loading,
+.analysis-card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.placeholder-state {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 280px;
+    color: var(--text-body);
+}
+
+.analysis-icon {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--color-accent);
+    font-size: 28px;
+    box-shadow: 0 10px 25px rgba(56, 189, 248, 0.2);
+}
+
+.analysis-loading {
+    align-items: center;
+    justify-content: center;
+    min-height: 280px;
+    text-align: center;
+}
+
+.loading-orb {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: conic-gradient(from 180deg, var(--color-primary), var(--color-accent), var(--color-primary));
+    animation: spin 1.2s linear infinite;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 0 40px rgba(124, 58, 237, 0.3);
+}
+
+.loading-orb::after {
+    content: '';
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--bg-card);
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.analysis-card {
+    gap: 18px;
+}
+
+.video-meta {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    padding: 14px;
+    border-radius: 18px;
+    background: rgba(9, 13, 24, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.video-thumb {
+    width: 102px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 14px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.meta-copy h3 {
+    color: var(--text-heading);
+    font-size: 18px;
+    margin-bottom: 6px;
+}
+
+.meta-copy p,
+.meta-stats {
+    color: var(--text-body);
+    font-size: 0.92rem;
+}
+
+.meta-stats {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+}
+
+.option-group {
+    padding: 12px;
+    border-radius: 18px;
+    background: rgba(9, 13, 24, 0.48);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.option-group h4 {
+    color: var(--text-heading);
+    margin-bottom: 10px;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+}
+
+.option-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.option-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.option-title {
+    color: var(--text-heading);
+    font-weight: 600;
+}
+
+.option-meta {
+    display: block;
+    color: var(--text-body);
+    font-size: 0.9rem;
+    margin-top: 3px;
+}
+
+.option-download-btn {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.95), rgba(56, 189, 248, 0.95));
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    white-space: nowrap;
+}
+
+.option-download-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(56, 189, 248, 0.22);
+}
+
+.option-download-btn:disabled {
+    opacity: 0.8;
+    cursor: wait;
+}
+
+.download-status {
+    min-height: 28px;
+    margin-top: 14px;
+    font-size: 0.95rem;
+}
+
+.download-status.info {
+    color: var(--color-accent);
+}
+
+/* ================================
    RESPONSIVE DESIGN
    ================================ */
 

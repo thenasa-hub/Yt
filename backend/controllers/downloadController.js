@@ -1,9 +1,18 @@
 const downloadService = require('../services/downloadService');
 
+function analyzeVideo(req, res, next) {
+  try {
+    const result = downloadService.analyzeVideo(req.body.url);
+    res.json({ success: true, data: result });
+  } catch (error) {
+    next(error);
+  }
+}
+
 function createDownload(req, res, next) {
   try {
-    const { url, format, quality } = req.body;
-    const job = downloadService.createDownloadJob({ url, format, quality });
+    const { url, selectedFormat, quality, fileType } = req.body;
+    const job = downloadService.createDownloadJob({ url, selectedFormat, quality, fileType });
     res.status(202).json({ success: true, data: { id: job.id, status: job.status, progress: job.progress } });
   } catch (error) {
     next(error);
@@ -41,6 +50,7 @@ function getFile(req, res, next) {
 }
 
 module.exports = {
+  analyzeVideo,
   createDownload,
   getStatus,
   getFile
