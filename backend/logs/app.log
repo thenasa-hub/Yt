@@ -10,3 +10,4 @@
 [2026-07-10T11:39:56.050Z] INFO: Shutting down server
 [2026-07-10T11:39:56.271Z] INFO: Server running on port 3000
 [2026-07-10T11:40:03.284Z] INFO: POST /api/analyze
+[2026-07-10T11:44:30.653Z] INFO: HEAD /
